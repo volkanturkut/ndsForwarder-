@@ -114,15 +114,22 @@ int main()
 {
 	if (R_FAILED(init()))
 		return -1;
+
+	Config* config = new Config();
+	config->dsiwareCount=getDsiWareCount();
+
 	u8 language=0;
-	CFGU_GetSystemLanguage(&language);
+	if (config->selectedLanguage == 12) {
+		CFGU_GetSystemLanguage(&language);
+	} else {
+		language = config->selectedLanguage;
+	}
 	gLang.loadStrings(language);
+
 	C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 	C3D_RenderTarget* bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 	
 	Menu* menu = generateMenu(std::filesystem::path("/"),nullptr);
-	Config* config = new Config();
-	config->dsiwareCount=getDsiWareCount();
 	Builder b;
 	b.initialize();
 
@@ -145,6 +152,21 @@ int main()
 
 		if (kHeld & KEY_L) {
 			config->interactKey(&kDown);
+		}else if(kHeld & KEY_R) {
+			if (kDown & KEY_LEFT) {
+				config->selectedLanguage--;
+				if (config->selectedLanguage < 0) config->selectedLanguage = 12;
+				u8 langIdx = config->selectedLanguage;
+				if (langIdx == 12) CFGU_GetSystemLanguage(&langIdx);
+				gLang.loadStrings(langIdx);
+			}
+			if (kDown & KEY_RIGHT) {
+				config->selectedLanguage++;
+				if (config->selectedLanguage > 12) config->selectedLanguage = 0;
+				u8 langIdx = config->selectedLanguage;
+				if (langIdx == 12) CFGU_GetSystemLanguage(&langIdx);
+				gLang.loadStrings(langIdx);
+			}
 		}else{
 
 			if (kDown & KEY_DOWN) menu->down();
@@ -175,6 +197,7 @@ int main()
 		menu = menu->handleQueue(&b,bottom,config);
 
 	}
+	config->save();
 	denit();
 	return 0;
 

@@ -13,8 +13,11 @@ class Config {
     std::vector<std::string> templates;
     unsigned int currentTemplate;
     unsigned long dsiwareCount;
+    int selectedLanguage;
     void draw(bool interactive=false);
     void interact(touchPosition *touch);
     void interactKey(u32 *key);
+    void save();
+    void load();
     Config();
 };

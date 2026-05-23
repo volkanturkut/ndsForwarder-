@@ -21,6 +21,11 @@ void drawText(float x, float y, float z, float scale, u32 bgColor, u32 fontColor
 void drawCheckbox(float x, float y, float z, float width, float height, float scale, u32 bgColor, u32 borderColor, u32 color, const char* label, bool checked);
 void C2DExtra_DrawRectHollow(float x, float y, float z, float width, float height, float thickness, u32 color);
 void drawArrow(float x, float y, float z, float height, float width, u32 color, bool flip);
+
+void setFontLanguage(u8 langIdx);
+float getFontScale(float scale);
+C2D_Font getFont();
+
 #ifdef __cplusplus
 }
 #endif
