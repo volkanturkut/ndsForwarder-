@@ -62,6 +62,19 @@ std::string Lang::getString(std::string key) {
         return key;
     }
 }
+std::string Lang::getErrorString(u32 code) {
+    char key[20];
+    sprintf(key, "error_%06lx", code);
+    std::string res = this->getString(key);
+    if (res == key) {
+        if (code == 0xffffffff) {
+            std::string ffff = this->getString("error_ffffffff");
+            if (ffff != "error_ffffffff") return ffff;
+        }
+        return this->getString("dialog_checkLog");
+    }
+    return res;
+}
 bool Lang::isReady() {
     return this->_ready;
 }

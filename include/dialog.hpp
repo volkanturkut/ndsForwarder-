@@ -10,6 +10,7 @@ class Dialog {
     float x,y,width,height;
     unsigned int selected;
     void draw();
+    void wrapText(std::string text);
     public:
     int handle();
     Dialog(C3D_RenderTarget* target, float x, float y, float width, float height, std::string message, std::initializer_list<std::string> options, int defaultChoice=0);

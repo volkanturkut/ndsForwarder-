@@ -2,15 +2,52 @@
 #include <citro2d.h>
 #include <vector>
 #include <string>
+#include <sstream>
 #include "dialog.hpp"
 #include "graphics.h"
 #include "settings.hpp"
+
+void Dialog::wrapText(std::string text) {
+    C2D_TextBuf buf = C2D_TextBufNew(4096);
+    float maxWidth = this->width - (MENU_BORDER_HEIGHT * 2) - 20;
+    float scale = getFontScale(0.67);
+
+    std::string currentLine = "";
+    std::string word = "";
+    std::stringstream ss(text);
+
+    while (ss >> word) {
+        std::string testLine = currentLine + (currentLine.empty() ? "" : " ") + word;
+        C2D_Text ctext;
+        C2D_Font font = getFont();
+        if (font) {
+            C2D_TextFontParse(&ctext, font, buf, testLine.c_str());
+        } else {
+            C2D_TextParse(&ctext, buf, testLine.c_str());
+        }
+        float width = 0;
+        C2D_TextGetDimensions(&ctext, scale, scale, &width, NULL);
+
+        if (width > maxWidth && !currentLine.empty()) {
+            this->message.push_back(currentLine);
+            currentLine = word;
+        } else {
+            currentLine = testLine;
+        }
+    }
+    if (!currentLine.empty()) {
+        this->message.push_back(currentLine);
+    }
+    C2D_TextBufDelete(buf);
+}
+
 void Dialog::draw() {
     C2D_TextBuf buf = C2D_TextBufNew(4096);
     C2D_Text ctext;
     C2D_TextParse(&ctext,buf,"0");
     float textheight=0;
-    C2D_TextGetDimensions(&ctext,0.67,0.67,NULL,&textheight);
+    float scale = getFontScale(0.67);
+    C2D_TextGetDimensions(&ctext,scale,scale,NULL,&textheight);
     C2D_TextBufDelete(buf);
 
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
@@ -64,22 +101,22 @@ int Dialog::handle() {
 }
 Dialog::Dialog(C3D_RenderTarget* target, float x, float y, float width, float height, std::string message, std::initializer_list<std::string> options, int defaultChoice) {
     this->options = std::vector(options.begin(),options.end());
-    this->message.push_back(message);
     this->target=target;
     this->selected=defaultChoice;
     this->x=x;
     this->y=y;
     this->width=width;
     this->height=height;
+    this->wrapText(message);
 }
 Dialog::Dialog(C3D_RenderTarget* target, float x, float y, float width, float height, std::initializer_list<std::string> message, std::initializer_list<std::string> options, int defaultChoice) {
     this->options = std::vector(options.begin(),options.end());
-    this->message= std::vector(message.begin(),message.end());
     this->target=target;
     this->selected=defaultChoice;
     this->x=x;
     this->y=y;
     this->width=width;
     this->height=height;
+    for (auto m : message) this->wrapText(m);
 }
 

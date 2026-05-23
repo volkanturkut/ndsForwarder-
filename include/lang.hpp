@@ -12,6 +12,7 @@ class Lang {
         void loadStrings(u8 lang);
         std::string getString(std::string key);
         std::string parseString(std::string key,...);
+        std::string getErrorString(u32 code);
 };
 
 extern Lang gLang;
