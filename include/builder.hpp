@@ -34,9 +34,15 @@ class Builder {
     void readTWLTID(void* titleid, const void* srl);
     ReturnResult* buildTicket(std::string filename);
     void parseTemplate(std::string path);
+    u64 calculateTID(std::string filename);
     bool isInstalled(u64 tid);
+    bool isSessionInstalled(u64 tid);
+    std::vector<u64> initialInstalledTIDs;
+    std::vector<u64> sessionInstalledTIDs;
     public:
     ReturnResult* initialize();
+    void refreshInstalledTIDs();
+    void addToSessionInstalled(u64 tid);
     ReturnResult* loadTemplate(std::string templateName);
     ReturnResult* buildCIA(std::string filename, bool randomTid=false, std::string customTitle="", bool force=false);
 };

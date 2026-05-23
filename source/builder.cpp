@@ -9,6 +9,7 @@
 #include <map>
 #include "helpers.hpp"
 #include <cstring>
+#include <algorithm>
 #include "nds.h"
 #include "tmd.h"
 #include "cia.h"
@@ -331,7 +332,8 @@ ReturnResult* Builder::buildSRL(std::string filename, bool randomTid, std::strin
     return new ReturnResult(ERROR_SUCCESS,dsiware);
 }
 
-bool Builder::isInstalled(u64 tid) {
+void Builder::refreshInstalledTIDs() {
+    this->initialInstalledTIDs.clear();
     FS_MediaType medias[] = {MEDIATYPE_NAND, MEDIATYPE_SD};
     for (int m = 0; m < 2; m++) {
         u32 titleCount = 0;
@@ -344,10 +346,29 @@ bool Builder::isInstalled(u64 tid) {
         if (R_FAILED(res)) continue;
 
         for (u32 i = 0; i < titlesRead; i++) {
-            if (titles[i] == tid) return true;
+            this->initialInstalledTIDs.push_back(titles[i]);
         }
     }
-    return false;
+}
+
+bool Builder::isInstalled(u64 tid) {
+    return std::find(this->initialInstalledTIDs.begin(), this->initialInstalledTIDs.end(), tid) != this->initialInstalledTIDs.end();
+}
+
+bool Builder::isSessionInstalled(u64 tid) {
+    return std::find(this->sessionInstalledTIDs.begin(), this->sessionInstalledTIDs.end(), tid) != this->sessionInstalledTIDs.end();
+}
+
+void Builder::addToSessionInstalled(u64 tid) {
+    if (!isSessionInstalled(tid)) {
+        this->sessionInstalledTIDs.push_back(tid);
+    }
+    // Also remove from initial if it was there, so subsequent checks (like mashing A)
+    // see it as "already handled in this session"
+    auto it = std::find(this->initialInstalledTIDs.begin(), this->initialInstalledTIDs.end(), tid);
+    if (it != this->initialInstalledTIDs.end()) {
+        this->initialInstalledTIDs.erase(it);
+    }
 }
 
 #ifdef DEBUG
@@ -358,6 +379,16 @@ void writeArray(const void* data, u32 size) {
 }
 #endif
 ReturnResult* Builder::buildCIA(std::string filename, bool randomTid, std::string customTitle, bool force) {
+
+    u64 tid = calculateTID(filename);
+    if (!randomTid && !force && tid != 0) {
+        if (isSessionInstalled(tid)) {
+            return new ReturnResult(ERROR_SUCCESS, "");
+        }
+        if (isInstalled(tid)) {
+            return new ReturnResult(ERROR_INSTALL_ALREADY_EXISTS, "");
+        }
+    }
 
 //    const u16 contentCount = 1;
     // GET RANDOM CONTENT ID
@@ -371,13 +402,10 @@ ReturnResult* Builder::buildCIA(std::string filename, bool randomTid, std::strin
     this->sections["content"] = srlResult->message;
     delete srlResult;
 
-    u64 tid = 0;
-    u8 tid_bytes[8] = {0};
-    readTWLTID(tid_bytes, this->sections["content"].c_str());
-    memcpyrev(&tid, tid_bytes, 8);
-
-    if (isInstalled(tid) && !force) {
-        return new ReturnResult(ERROR_INSTALL_ALREADY_EXISTS, "");
+    if (tid == 0) {
+        u8 tid_bytes[8] = {0};
+        readTWLTID(tid_bytes, this->sections["content"].c_str());
+        memcpyrev(&tid, tid_bytes, 8);
     }
 
 	std::string srlSha = sha256( (u8*)this->sections["content"].c_str(), this->sections["content"].size());
@@ -464,6 +492,16 @@ ReturnResult* Builder::buildCIA(std::string filename, bool randomTid, std::strin
 	}
     logger.debug(gLang.getString("debug_installedForwarder"));
     
+    // Success! Update session tracking
+    if (tid == 0) {
+        u8 tid_bytes[8] = {0};
+        readTWLTID(tid_bytes, this->sections["content"].c_str());
+        memcpyrev(&tid, tid_bytes, 8);
+    }
+    if (tid != 0) {
+        addToSessionInstalled(tid);
+    }
+
 return new ReturnResult(ERROR_SUCCESS,"");
 }
 
@@ -555,6 +593,30 @@ void Builder::readTWLTID(void* titleid, const void* srl) {
     u8 twltitle[8]={0x00,0x04,0x80,0x00,0x00,0x00,0x00,0x00};
     memcpyrev(twltitle+3,(u8*)srl + 0x230,5);
     memcpy(titleid,twltitle,8);
+}
+
+u64 Builder::calculateTID(std::string filename) {
+    std::ifstream f(filename, std::ios::binary);
+    if (!f.is_open()) return 0;
+
+    tDSiHeader header = {};
+    f.read((char*)&header, sizeof(header.ndshdr));
+    bool extendedHeader = (header.ndshdr.unitCode != 0x00);
+    if (extendedHeader) {
+        f.seekg(0);
+        f.read((char*)&header, sizeof(header));
+    }
+    f.close();
+
+    u64 tid = 0;
+    u8 tid_bytes[8] = {0x00, 0x04, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00};
+    if (!extendedHeader) {
+        memcpyrev(tid_bytes + 3, header.ndshdr.gameCode, 4);
+    } else {
+        memcpyrev(tid_bytes + 3, (u8*)&header.tid_low, 5);
+    }
+    memcpyrev(&tid, tid_bytes, 8);
+    return tid;
 }
 
 void Builder::parseTemplate(std::string path) {

@@ -202,6 +202,7 @@ extern "C" {
     Menu* Menu::handleQueue(Builder* builder, C3D_RenderTarget* target, Config* config) {
         if (!this->hasQueue())
             return this;
+        builder->refreshInstalledTIDs();
         if (target==nullptr)
             target = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
         while (queue.size() > 0) {
@@ -233,28 +234,32 @@ extern "C" {
                                 swkbdInputText(&kbstate,customTitleBuffer,0x51);
                                 customTitle=std::string(customTitleBuffer);
                             }
-                            buildResult = builder->loadTemplate(config->templates.at(config->currentTemplate));
-                            if (buildResult->isSuccess()) {
-                                delete buildResult;
+                            ReturnResult* templateResult = builder->loadTemplate(config->templates.at(config->currentTemplate));
+                            if (templateResult->isSuccess()) {
                                 buildResult = builder->buildCIA(entry.path.generic_string(), randomTID, customTitle, forceInstall);
+                            } else {
+                                buildResult = templateResult;
+                                templateResult = nullptr; // buildResult now owns it
                             }
+                            if (templateResult) delete templateResult;
                         } else {
                             buildResult = builder->buildCIA(entry.path.generic_string());
                         }
                         
                         if (buildResult != nullptr && buildResult->code == ERROR_INSTALL_ALREADY_EXISTS) {
                             if (Dialog(target,0,0,320,240,{gLang.getString("error_030102"),gLang.getString("menu_overwriteQ")},{gLang.getString("menu_yes"),gLang.getString("menu_no")}).handle()==0) {
+                                Dialog(target,0,0,320,240,{gLang.getString("menu_installing"), entry.path.filename().generic_string()},{},0).handle();
                                 delete buildResult;
                                 buildResult = builder->buildCIA(entry.path.generic_string(), randomTID, customTitle, true);
                             }
                         }
 
-                        if (buildResult->isSuccess()) {
+                        if (buildResult != nullptr && buildResult->isSuccess()) {
                             Dialog(target,0,0,320,240,gLang.getString("menu_installComplete"),{gLang.getString("menu_ok")}).handle();
-                        }else{
+                        }else if (buildResult != nullptr) {
                             Dialog(target,0,0,320,240,{gLang.getString("menu_installFailed"),gLang.getErrorString(buildResult->code),gLang.parseString("format_hex",(u32)buildResult->code)},{gLang.getString("menu_ok")}).handle();
                         }
-                        delete buildResult;
+                        if (buildResult) delete buildResult;
                     }
                     break;
                 case Install_All:
@@ -289,24 +294,32 @@ extern "C" {
                                     swkbdInputText(&kbstate,customTitleBuffer,0x51);
                                     customTitle=std::string(customTitleBuffer);
                                 }
-                                buildResult = builder->buildCIA(dEntry.path().generic_string(), randomTID, customTitle, forceInstall);
+                                ReturnResult* templateResult = builder->loadTemplate(config->templates.at(config->currentTemplate));
+                                if (templateResult->isSuccess()) {
+                                    buildResult = builder->buildCIA(dEntry.path().generic_string(), randomTID, customTitle, forceInstall);
+                                } else {
+                                    buildResult = templateResult;
+                                    templateResult = nullptr; // buildResult now owns it
+                                }
+                                if (templateResult) delete templateResult;
                             } else {
                                 buildResult = builder->buildCIA(dEntry.path().generic_string());
                             }
 
                             if (buildResult != nullptr && buildResult->code == ERROR_INSTALL_ALREADY_EXISTS) {
                                 if (Dialog(target,0,0,320,240,{gLang.getString("error_030102"),shortname,gLang.getString("menu_overwriteQ")},{gLang.getString("menu_yes"),gLang.getString("menu_no")}).handle()==0) {
+                                    Dialog(target,0,0,320,240,{gLang.getString("menu_installing"), shortname},{},0).handle();
                                     delete buildResult;
                                     buildResult = builder->buildCIA(dEntry.path().generic_string(), randomTID, customTitle, true);
                                 }
                             }
 
-                            if (!buildResult->isSuccess()) {
+                            if (buildResult != nullptr && !buildResult->isSuccess()) {
                                 Dialog(target,0,0,320,240,{gLang.getString("menu_installFailed"),shortname,gLang.getErrorString(buildResult->code),gLang.parseString("format_hex",(u32)buildResult->code)},{gLang.getString("menu_ok")}).handle();
-                            }else{
+                            }else if (buildResult != nullptr) {
                                 config->dsiwareCount++;
                             }
-                            delete buildResult;
+                            if (buildResult) delete buildResult;
                         }
                         Dialog(target,0,0,320,240,gLang.getString("menu_installComplete"),{gLang.getString("menu_ok")}).handle();
                     }
