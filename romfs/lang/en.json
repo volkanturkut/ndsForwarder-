@@ -74,5 +74,7 @@
     "error_020300":"Template .nds file not found.",
     "error_020400":"Invalid template format. Probably a corrupt template.",
     "error_030101":"Not enough space on system NAND.",
+    "error_030102": "Title already installed.",
+    "menu_overwriteQ": "Do you wish to overwrite it?",
     "error_ffffffff":"Check the log in /3ds/forwarder/log.txt and verify that you are not receiving a CRC error. CRC errors indicate corrupted ROMs. If this is a ROM hack, you can use a custom DSi banner (.bin format) to allow install."
 }

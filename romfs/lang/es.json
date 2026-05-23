@@ -65,5 +65,7 @@
     "error_020300": "Archivo .nds de la plantilla no encontrado.",
     "error_020400": "Formato de plantilla inválido. Probablemente una plantilla corrupta.",
     "error_030101": "No hay suficiente espacio en la NAND del sistema.",
+    "error_030102": "Title already installed.",
+    "menu_overwriteQ": "Do you wish to overwrite it?",
     "error_ffffffff": "Revise el log en /3ds/forwarder/log.txt y verifique que no esté recibiendo un error de CRC. Los errores de CRC indican ROMs corruptas. Si es un ROM hack, puede usar un banner DSi personalizado (formato .bin) para permitir la instalación."
 }

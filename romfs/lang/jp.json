@@ -65,5 +65,7 @@
     "error_020300": "テンプレートの.ndsファイルが見つかりません。",
     "error_020400": "テンプレート形式が無効です。テンプレートが破損している可能性があります。",
     "error_030101": "システムNANDの空き容量が不足しています。",
+    "error_030102": "Title already installed.",
+    "menu_overwriteQ": "Do you wish to overwrite it?",
     "error_ffffffff": "/3ds/forwarder/log.txtのログを確認し、CRCエラーが発生していないか確認してください。CRCエラーはROMの破損を示します。ROMハックの場合は、カスタムDSiバナー（.bin形式）を使用してインストールを許可できます。"
 }

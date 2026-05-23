@@ -34,6 +34,7 @@ class Builder {
     void readTWLTID(void* titleid, const void* srl);
     ReturnResult* buildTicket(std::string filename);
     void parseTemplate(std::string path);
+    bool isInstalled(u64 tid);
     public:
     ReturnResult* initialize();
     ReturnResult* loadTemplate(std::string templateName);

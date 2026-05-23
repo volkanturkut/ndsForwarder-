@@ -65,5 +65,7 @@
     "error_020300": "Sjabloon .nds-bestand niet gevonden.",
     "error_020400": "Ongeldig sjabloonformaat. Waarschijnlijk een beschadigd sjabloon.",
     "error_030101": "Onvoldoende ruimte op systeem-NAND.",
+    "error_030102": "Title already installed.",
+    "menu_overwriteQ": "Do you wish to overwrite it?",
     "error_ffffffff": "Controleer het logboek in /3ds/forwarder/log.txt en verifieer dat u geen CRC-fout ontvangt. CRC-fouten duiden op beschadigde ROM's. Als dit een ROM-hack is, kunt u een aangepaste DSi-banner (.bin-formaat) gebruiken om installatie toe te staan."
 }

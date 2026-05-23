@@ -65,5 +65,7 @@
     "error_020300": "Vorlagen-.nds-Datei nicht gefunden.",
     "error_020400": "Ungültiges Vorlagenformat. Wahrscheinlich eine beschädigte Vorlage.",
     "error_030101": "Nicht genügend Speicherplatz im System-NAND.",
+    "error_030102": "Title already installed.",
+    "menu_overwriteQ": "Do you wish to overwrite it?",
     "error_ffffffff": "Überprüfen Sie das Protokoll in /3ds/forwarder/log.txt und stellen Sie sicher, dass Sie keinen CRC-Fehler erhalten. CRC-Fehler weisen auf beschädigte ROMs hin. Wenn es sich um einen ROM-Hack handelt, können Sie ein benutzerdefiniertes DSi-Banner (.bin-Format) verwenden, um die Installation zu ermöglichen."
 }

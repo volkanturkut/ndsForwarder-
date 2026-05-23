@@ -65,5 +65,7 @@
     "error_020300": "Arquivo .nds do modelo não encontrado.",
     "error_020400": "Formato de modelo inválido. Provavelmente um modelo corrompido.",
     "error_030101": "Espaço insuficiente na NAND do sistema.",
+    "error_030102": "Title already installed.",
+    "menu_overwriteQ": "Do you wish to overwrite it?",
     "error_ffffffff": "Verifique o log em /3ds/forwarder/log.txt e verifique se não está recebendo um erro de CRC. Erros de CRC indicam ROMs corrompidas. Se for um hack de ROM, você pode usar um banner DSi personalizado (formato .bin) para permitir a instalação."
 }

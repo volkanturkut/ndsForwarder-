@@ -65,5 +65,7 @@
     "error_020300": "템플릿 .nds 파일을 찾을 수 없습니다.",
     "error_020400": "템플릿 형식이 유효하지 않습니다. 템플릿이 손상되었을 수 있습니다.",
     "error_030101": "시스템 NAND의 공간이 부족합니다.",
+    "error_030102": "Title already installed.",
+    "menu_overwriteQ": "Do you wish to overwrite it?",
     "error_ffffffff": "/3ds/forwarder/log.txt의 로그를 확인하고 CRC 오류가 발생하지 않았는지 확인하십시오. CRC 오류는 손상된 ROM을 의미합니다. ROM 해킹의 경우, 커스텀 DSi 배너(.bin 형식)를 사용하여 설치할 수 있습니다."
 }

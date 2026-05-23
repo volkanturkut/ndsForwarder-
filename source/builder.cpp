@@ -330,6 +330,26 @@ ReturnResult* Builder::buildSRL(std::string filename, bool randomTid, std::strin
     //build twl
     return new ReturnResult(ERROR_SUCCESS,dsiware);
 }
+
+bool Builder::isInstalled(u64 tid) {
+    FS_MediaType medias[] = {MEDIATYPE_NAND, MEDIATYPE_SD};
+    for (int m = 0; m < 2; m++) {
+        u32 titleCount = 0;
+        Result res = AM_GetTitleCount(medias[m], &titleCount);
+        if (R_FAILED(res) || titleCount == 0) continue;
+
+        std::vector<u64> titles(titleCount);
+        u32 titlesRead = 0;
+        res = AM_GetTitleList(&titlesRead, medias[m], titleCount, titles.data());
+        if (R_FAILED(res)) continue;
+
+        for (u32 i = 0; i < titlesRead; i++) {
+            if (titles[i] == tid) return true;
+        }
+    }
+    return false;
+}
+
 #ifdef DEBUG
 void writeArray(const void* data, u32 size) {
     for(u32 i=0; i<size; ++i)
@@ -350,6 +370,16 @@ ReturnResult* Builder::buildCIA(std::string filename, bool randomTid, std::strin
     }
     this->sections["content"] = srlResult->message;
     delete srlResult;
+
+    u64 tid = 0;
+    u8 tid_bytes[8] = {0};
+    readTWLTID(tid_bytes, this->sections["content"].c_str());
+    memcpyrev(&tid, tid_bytes, 8);
+
+    if (isInstalled(tid) && !force) {
+        return new ReturnResult(ERROR_INSTALL_ALREADY_EXISTS, "");
+    }
+
 	std::string srlSha = sha256( (u8*)this->sections["content"].c_str(), this->sections["content"].size());
     ReturnResult* ticketResult =buildTicket(filename);
     if (!ticketResult->isSuccess()) {
@@ -399,6 +429,12 @@ ReturnResult* Builder::buildCIA(std::string filename, bool randomTid, std::strin
         logger.error(message);
         return new ReturnResult(ERROR_NOT_ENOUGH_SPACE,message);
     }
+
+    if (force) {
+        AM_DeleteTitle(MEDIATYPE_NAND, tid);
+        AM_DeleteTitle(MEDIATYPE_SD, tid);
+    }
+
 	ret = AM_StartCiaInstall(MEDIATYPE_NAND, &ciaInstallFileHandle);
     if (R_FAILED(ret)) {
         std::string message = gLang.parseString("builder_ErrInRet","AM_StartCiaInstall",ret);
