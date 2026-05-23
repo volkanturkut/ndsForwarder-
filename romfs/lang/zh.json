@@ -65,5 +65,7 @@
     "error_020300": "找不到模板 .nds 文件。",
     "error_020400": "模板格式无效。可能模板已损坏。",
     "error_030101": "系统 NAND 空间不足。",
+    "error_030102": "Title already installed.",
+    "menu_overwriteQ": "Do you wish to overwrite it?",
     "error_ffffffff": "请检查 /3ds/forwarder/log.txt 中的日志，并确认是否收到 CRC 错误。CRC 错误表示 ROM 已损坏。如果是 ROM 修改版，您可以使用自定义 DSi 横幅（.bin 格式）来允许安装。"
 }

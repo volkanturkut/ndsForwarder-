@@ -218,8 +218,12 @@ extern "C" {
                     }
                     if (Dialog(target,0,0,320,240,{gLang.getString("menu_installTitleQ"),entry.path.filename().generic_string()},{gLang.getString("menu_yes"),gLang.getString("menu_no")}).handle()==0) {
                         ReturnResult* buildResult=nullptr;
+                        std::string customTitle="";
+                        bool randomTID = false;
+                        bool forceInstall = false;
                         if (config!=nullptr) {
-                            std::string customTitle="";
+                            randomTID = config->randomTID;
+                            forceInstall = config->forceInstall;
                             if (config->customTitle) {
                                 char customTitleBuffer[0x51] = {0};
                                 SwkbdState kbstate;
@@ -232,12 +236,19 @@ extern "C" {
                             buildResult = builder->loadTemplate(config->templates.at(config->currentTemplate));
                             if (buildResult->isSuccess()) {
                                 delete buildResult;
-                                buildResult = builder->buildCIA(entry.path.generic_string(),config->randomTID,customTitle,config->forceInstall);
+                                buildResult = builder->buildCIA(entry.path.generic_string(), randomTID, customTitle, forceInstall);
                             }
                         } else {
                             buildResult = builder->buildCIA(entry.path.generic_string());
                         }
                         
+                        if (buildResult != nullptr && buildResult->code == ERROR_INSTALL_ALREADY_EXISTS) {
+                            if (Dialog(target,0,0,320,240,{gLang.getString("error_030102"),gLang.getString("menu_overwriteQ")},{gLang.getString("menu_yes"),gLang.getString("menu_no")}).handle()==0) {
+                                delete buildResult;
+                                buildResult = builder->buildCIA(entry.path.generic_string(), randomTID, customTitle, true);
+                            }
+                        }
+
                         if (buildResult->isSuccess()) {
                             Dialog(target,0,0,320,240,gLang.getString("menu_installComplete"),{gLang.getString("menu_ok")}).handle();
                         }else{
@@ -263,8 +274,12 @@ extern "C" {
                             std::string shortname = shorten(dEntry.path().filename().generic_string(),25);
                             Dialog(target,0,0,320,240,{gLang.getString("menu_installing"),shortname},{},0).handle();
                             ReturnResult* buildResult=nullptr;
+                            std::string customTitle="";
+                            bool randomTID = false;
+                            bool forceInstall = false;
                             if (config!=nullptr) {
-                                std::string customTitle="";
+                                randomTID = config->randomTID;
+                                forceInstall = config->forceInstall;
                                 if (config->customTitle) {
                                     char customTitleBuffer[0x51] = {0};
                                     SwkbdState kbstate;
@@ -274,10 +289,18 @@ extern "C" {
                                     swkbdInputText(&kbstate,customTitleBuffer,0x51);
                                     customTitle=std::string(customTitleBuffer);
                                 }
-                                buildResult = builder->buildCIA(dEntry.path().generic_string(),config->randomTID,customTitle, config->forceInstall);
+                                buildResult = builder->buildCIA(dEntry.path().generic_string(), randomTID, customTitle, forceInstall);
                             } else {
                                 buildResult = builder->buildCIA(dEntry.path().generic_string());
                             }
+
+                            if (buildResult != nullptr && buildResult->code == ERROR_INSTALL_ALREADY_EXISTS) {
+                                if (Dialog(target,0,0,320,240,{gLang.getString("error_030102"),shortname,gLang.getString("menu_overwriteQ")},{gLang.getString("menu_yes"),gLang.getString("menu_no")}).handle()==0) {
+                                    delete buildResult;
+                                    buildResult = builder->buildCIA(dEntry.path().generic_string(), randomTID, customTitle, true);
+                                }
+                            }
+
                             if (!buildResult->isSuccess()) {
                                 Dialog(target,0,0,320,240,{gLang.getString("menu_installFailed"),shortname,gLang.getErrorString(buildResult->code),gLang.parseString("format_hex",(u32)buildResult->code)},{gLang.getString("menu_ok")}).handle();
                             }else{
