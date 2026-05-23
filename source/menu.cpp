@@ -119,6 +119,21 @@ extern "C" {
             }
             entries.push_back(menuEntry);
         }
+
+        if (!ndsFilesVisible) {
+            for (auto it = std::filesystem::recursive_directory_iterator(path, std::filesystem::directory_options::skip_permission_denied);
+                it != std::filesystem::recursive_directory_iterator(); ++it) {
+                std::string filename = it->path().filename().generic_string();
+                if (filename[0] == '.' || (filename == "_nds" && it.depth() == 0 && path.generic_string() == "/")) {
+                    it.disable_recursion_pending();
+                    continue;
+                }
+                if (!it->is_directory() && validExtension(it->path().extension().c_str())) {
+                    ndsFilesVisible = true;
+                    break;
+                }
+            }
+        }
         std::sort(entries.begin(), entries.end(), sortMenuSelections);
         
         if (path.has_parent_path() && path.parent_path().compare(path)) {
@@ -263,15 +278,20 @@ extern "C" {
                             Dialog(target,0,0,320,240,{gLang.getString("menu_installFailed"),gLang.getString("menu_noTemplate")},{gLang.getString("menu_ok")}).handle();
                             break;
                         }
-                        for (const auto & dEntry : std::filesystem::directory_iterator(entry.path)) {
+                        for (auto it = std::filesystem::recursive_directory_iterator(entry.path, std::filesystem::directory_options::skip_permission_denied);
+                            it != std::filesystem::recursive_directory_iterator(); ++it) {
                             if (config->dsiwareCount >= MAX_DSIWARE) {
                                 Dialog(target,0,0,320,240,{gLang.getString("menu_tooManyDSiWare"),std::to_string(config->dsiwareCount)},{gLang.getString("menu_ok")}).handle();
                                 break;
                             }
-                            std::string filename = dEntry.path().filename();
-                            if (filename[0]=='.' || !validExtension(dEntry.path().extension().c_str()))
+                            std::string filename = it->path().filename().generic_string();
+                            if (filename[0] == '.' || (filename == "_nds" && it.depth() == 0 && entry.path.generic_string() == "/")) {
+                                it.disable_recursion_pending();
                                 continue;
-                            std::string shortname = shorten(dEntry.path().filename().generic_string(),25);
+                            }
+                            if (it->is_directory() || !validExtension(it->path().extension().c_str()))
+                                continue;
+                            std::string shortname = shorten(it->path().filename().generic_string(),25);
                             Dialog(target,0,0,320,240,{gLang.getString("menu_installing"),shortname},{},0).handle();
                             ReturnResult* buildResult=nullptr;
                             std::string customTitle="";
@@ -289,15 +309,15 @@ extern "C" {
                                     swkbdInputText(&kbstate,customTitleBuffer,0x51);
                                     customTitle=std::string(customTitleBuffer);
                                 }
-                                buildResult = builder->buildCIA(dEntry.path().generic_string(), randomTID, customTitle, forceInstall);
+                                buildResult = builder->buildCIA(it->path().generic_string(), randomTID, customTitle, forceInstall);
                             } else {
-                                buildResult = builder->buildCIA(dEntry.path().generic_string());
+                                buildResult = builder->buildCIA(it->path().generic_string());
                             }
 
                             if (buildResult != nullptr && buildResult->code == ERROR_INSTALL_ALREADY_EXISTS) {
                                 if (Dialog(target,0,0,320,240,{gLang.getString("error_030102"),shortname,gLang.getString("menu_overwriteQ")},{gLang.getString("menu_yes"),gLang.getString("menu_no")}).handle()==0) {
                                     delete buildResult;
-                                    buildResult = builder->buildCIA(dEntry.path().generic_string(), randomTID, customTitle, true);
+                                    buildResult = builder->buildCIA(it->path().generic_string(), randomTID, customTitle, true);
                                 }
                             }
 
