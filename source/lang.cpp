@@ -20,13 +20,13 @@ void Lang::loadStrings(u8 bLang) {
     }
     setFontLanguage(bLang);
     FILE *f;
-    std::string filename=ROMFS_LANG_DIR+"default.json";
-    if (!fileExists(SDCARD_LANG_DIR+std::string(lang[bLang])+".json")) {
-        if (fileExists(ROMFS_LANG_DIR+std::string(lang[bLang])+".json")) {
-            filename = ROMFS_LANG_DIR+std::string(lang[bLang])+".json";
-        }
-    }else{
-        filename = SDCARD_LANG_DIR+std::string(lang[bLang])+".json";
+    std::string filename = ROMFS_LANG_DIR + "default.json";
+    std::string langFile = std::string(lang[bLang]) + ".json";
+
+    if (fileExists(SDCARD_LANG_DIR + langFile)) {
+        filename = SDCARD_LANG_DIR + langFile;
+    } else if (fileExists(ROMFS_LANG_DIR + langFile)) {
+        filename = ROMFS_LANG_DIR + langFile;
     }
 
 

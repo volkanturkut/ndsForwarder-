@@ -9,6 +9,7 @@
 #include <fstream>
 #include "logger.hpp"
 #include "lang.hpp"
+#include "helpers.hpp"
 Logger configLogger("Config");
 
 static const char* langNames[] = {
