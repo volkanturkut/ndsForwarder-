@@ -41,13 +41,13 @@
     "menu_yes":"Yes",
     "menu_no":"No",
 
-    "menu_installAll":"< Install All nds >",
+    "menu_installAll":"< Install All nds (Recursive) >",
     "menu_tooManyDSiWare":"Too many DSiWare installed",
     "menu_installTitleQ":"Do you wish to install",
     "menu_customTitleQ":"Enter a Custom Title Name",
     "menu_installComplete":"Install Complete",
     "menu_installFailed":"Install Failed",
-    "menu_allForwarders":"forwarders for all nds in:",
+    "menu_allForwarders":"forwarders for all nds (recursively) in:",
     "menu_noTemplate":"Failed to load template",
     "menu_installing":"Installing",
 
