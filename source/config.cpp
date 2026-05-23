@@ -6,14 +6,33 @@
 #include <vector>
 #include <filesystem>
 #include <algorithm>
+#include <fstream>
 #include "logger.hpp"
 #include "lang.hpp"
 Logger configLogger("Config");
+
+static const char* langNames[] = {
+    "日本語",
+    "English",
+    "Français",
+    "Deutsch",
+    "Italiano",
+    "Español",
+    "简体中文",
+    "한국어",
+    "Nederlands",
+    "Português",
+    "Русский",
+    "繁體中文",
+    "System"
+};
 
 Config::Config() {
     this->customTitle=false;
     this->randomTID=false;
     this->forceInstall=false;
+    this->selectedLanguage=12; // System
+    this->load();
     this->dsiwareCount=0;
     this->templates = std::vector<std::string>();
     this->templates.push_back("sdcard");
@@ -45,41 +64,66 @@ Config::Config() {
 }
 void Config::draw(bool interactive) {
     drawPanelWithTitle(0,0,0,320,240,MENU_BORDER_HEIGHT,BGColor,BORDER_COLOR,VERSION,BORDER_FOREGROUND);
-    drawCheckbox(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+20,0,20,20,0.67,BGColor,BORDER_COLOR,FOREGROUND_COLOR,gLang.parseString("config_randomTID").c_str(),this->randomTID);
-    drawCheckbox(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+60,0,20,20,0.67,BGColor,BORDER_COLOR,FOREGROUND_COLOR,gLang.parseString("config_customTitle").c_str(),this->customTitle);
-    drawCheckbox(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+100,0,20,20,0.67,BGColor,BORDER_COLOR,FOREGROUND_COLOR,gLang.parseString("config_forceInstall").c_str(),this->forceInstall);
+    drawCheckbox(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+0,0,20,20,0.67,BGColor,BORDER_COLOR,FOREGROUND_COLOR,gLang.parseString("config_randomTID").c_str(),this->randomTID);
+    drawCheckbox(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+30,0,20,20,0.67,BGColor,BORDER_COLOR,FOREGROUND_COLOR,gLang.parseString("config_customTitle").c_str(),this->customTitle);
+    drawCheckbox(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+60,0,20,20,0.67,BGColor,BORDER_COLOR,FOREGROUND_COLOR,gLang.parseString("config_forceInstall").c_str(),this->forceInstall);
+
+    drawText(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+110,0,0.67,BGColor,FOREGROUND_COLOR,gLang.getString("config_language").c_str(),0);
+    drawArrow(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+130,0,10,10,FOREGROUND_COLOR,false);
+    drawArrow(MENU_BORDER_HEIGHT+25,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+130,0,10,10,FOREGROUND_COLOR,true);
+    const char* langName = (this->selectedLanguage==12)?gLang.getString("config_system").c_str():langNames[this->selectedLanguage];
+    drawText(MENU_BORDER_HEIGHT+50,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+134,0,0.67,BORDER_COLOR,BORDER_FOREGROUND,langName,0);
+
     if (this->templates.size() > 1) {
-        drawText(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+140,0,0.67,BGColor,FOREGROUND_COLOR,"Template:",0);
-        drawArrow(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+160,0,10,10,FOREGROUND_COLOR,false);
-        drawArrow(MENU_BORDER_HEIGHT+25,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+160,0,10,10,FOREGROUND_COLOR,true);
-        drawText(MENU_BORDER_HEIGHT+50,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+164,0,0.67,BORDER_COLOR,BORDER_FOREGROUND,this->templates.at(this->currentTemplate).c_str(),0);
+        drawText(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+160,0,0.67,BGColor,FOREGROUND_COLOR,gLang.getString("config_template").c_str(),0);
+        drawArrow(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+180,0,10,10,FOREGROUND_COLOR,false);
+        drawArrow(MENU_BORDER_HEIGHT+25,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+180,0,10,10,FOREGROUND_COLOR,true);
+        drawText(MENU_BORDER_HEIGHT+50,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+184,0,0.67,BORDER_COLOR,BORDER_FOREGROUND,this->templates.at(this->currentTemplate).c_str(),0);
     }
 }
 void Config::interact(touchPosition *touch) {
     if (touch->px > MENU_BORDER_HEIGHT+10 && touch->px < MENU_BORDER_HEIGHT+30) {
-        if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+20 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+50) {
+        if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+0 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+20) {
             this->randomTID=!this->randomTID;
         }
-        if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+60 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+80) {
+        if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+30 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+50) {
             this->customTitle=!this->customTitle;
         }
-        if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+100 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+120) {
+        if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+60 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+80) {
             this->forceInstall=!this->forceInstall;
         }
     }
-    if (touch->px >= MENU_BORDER_HEIGHT+10 && touch->px <= MENU_BORDER_HEIGHT+20 &&
-        touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+160 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+170) {
-            if (this->currentTemplate > 0)
-                this->currentTemplate--;
-            else if(this->templates.size() > 0)
-                this->currentTemplate=this->templates.size()-1;
+    // Language selection
+    if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+120 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+150) {
+        if (touch->px >= MENU_BORDER_HEIGHT+10 && touch->px <= MENU_BORDER_HEIGHT+20) {
+            this->selectedLanguage--;
+            if (this->selectedLanguage < 0) this->selectedLanguage = 12;
+            u8 langIdx = this->selectedLanguage;
+            if (langIdx == 12) CFGU_GetSystemLanguage(&langIdx);
+            gLang.loadStrings(langIdx);
+        }
+        if (touch->px >= MENU_BORDER_HEIGHT+25 && touch->px <= MENU_BORDER_HEIGHT+35) {
+            this->selectedLanguage++;
+            if (this->selectedLanguage > 12) this->selectedLanguage = 0;
+            u8 langIdx = this->selectedLanguage;
+            if (langIdx == 12) CFGU_GetSystemLanguage(&langIdx);
+            gLang.loadStrings(langIdx);
+        }
     }
-    if (touch->px >= MENU_BORDER_HEIGHT+25 && touch->px <= MENU_BORDER_HEIGHT+35 &&
-        touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+160 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+170) {
-            if (this->templates.size() > this->currentTemplate+1)
-                this->currentTemplate++;
-            else
-                this->currentTemplate=0;
+    // Template selection
+    if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+170 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+200) {
+        if (touch->px >= MENU_BORDER_HEIGHT+10 && touch->px <= MENU_BORDER_HEIGHT+20) {
+                if (this->currentTemplate > 0)
+                    this->currentTemplate--;
+                else if(this->templates.size() > 0)
+                    this->currentTemplate=this->templates.size()-1;
+        }
+        if (touch->px >= MENU_BORDER_HEIGHT+25 && touch->px <= MENU_BORDER_HEIGHT+35) {
+                if (this->templates.size() > this->currentTemplate+1)
+                    this->currentTemplate++;
+                else
+                    this->currentTemplate=0;
+        }
     }
         
 
@@ -96,9 +140,10 @@ void Config::interactKey(u32* key) {
         this->forceInstall=!this->forceInstall;
     }
     if (*key & KEY_LEFT) {
-        this->currentTemplate--;
-        if (this->currentTemplate < 0) {
+        if (this->currentTemplate == 0) {
             this->currentTemplate = this->templates.size()-1;
+        } else {
+            this->currentTemplate--;
         }
     }
     if (*key & KEY_RIGHT) {
@@ -107,4 +152,29 @@ void Config::interactKey(u32* key) {
             this->currentTemplate = 0;
         }
     }
+}
+
+void Config::save() {
+    nlohmann::json j;
+    j["randomTID"] = this->randomTID;
+    j["customTitle"] = this->customTitle;
+    j["forceInstall"] = this->forceInstall;
+    j["selectedLanguage"] = this->selectedLanguage;
+
+    std::ofstream o(FORWARDER_DIR + "/config.json");
+    o << j.dump(4) << std::endl;
+}
+
+void Config::load() {
+    std::string path = FORWARDER_DIR + "/config.json";
+    if (!fileExists(path)) return;
+
+    std::ifstream i(path);
+    nlohmann::json j;
+    i >> j;
+
+    if (j.contains("randomTID")) this->randomTID = j["randomTID"];
+    if (j.contains("customTitle")) this->customTitle = j["customTitle"];
+    if (j.contains("forceInstall")) this->forceInstall = j["forceInstall"];
+    if (j.contains("selectedLanguage")) this->selectedLanguage = j["selectedLanguage"];
 }

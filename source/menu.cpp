@@ -62,11 +62,17 @@ extern "C" {
                 C2DExtra_DrawRectHollow(0,MENU_HEADING_HEIGHT+offset,0,400,ENTRY_HEIGHT,1,BORDER_COLOR);
                 C2D_TextBuf buf = C2D_TextBufNew(4096);
                 C2D_Text text;
-                C2D_TextParse(&text,buf,&(*entry)->display.c_str()[0]);
+                C2D_Font font = getFont();
+                if (font) {
+                    C2D_TextFontParse(&text, font, buf, &(*entry)->display.c_str()[0]);
+                } else {
+                    C2D_TextParse(&text,buf,&(*entry)->display.c_str()[0]);
+                }
+                float scale = getFontScale(0.67);
                 float textheight=0;
-                C2D_TextGetDimensions(&text,0.67,0.67,NULL,&textheight);
+                C2D_TextGetDimensions(&text,scale,scale,NULL,&textheight);
                 C2D_TextOptimize(&text);
-                C2D_DrawText(&text, C2D_WithColor,40,MENU_HEADING_HEIGHT+offset+(ENTRY_HEIGHT/2)-(textheight/2),0,0.67,0.67,(entry==this->selection)?HIGHLIGHT_FOREGROUND:FOREGROUND_COLOR);
+                C2D_DrawText(&text, C2D_WithColor,40,MENU_HEADING_HEIGHT+offset+(ENTRY_HEIGHT/2)-(textheight/2),0,scale,scale,(entry==this->selection)?HIGHLIGHT_FOREGROUND:FOREGROUND_COLOR);
                 C2D_TextBufDelete(buf);
                 offset+=ENTRY_HEIGHT;
                 counter++;

@@ -7,16 +7,18 @@
 #include "settings.hpp"
 #include "helpers.hpp"
 #include "logger.hpp"
+#include "graphics.h"
 Lang gLang=Lang();
 Logger jsonLogger("JSON");
-static char lang[12][3]=  {
-    "jp","en","fr","de","it","es","zh","ko","nl","pt","ru","tw"
+static char lang[13][3]=  {
+    "jp","en","fr","de","it","es","zh","ko","nl","pt","ru","tw","en"
 };
 
 void Lang::loadStrings(u8 bLang) {
-    if (bLang>11) {
+    if (bLang>12) {
         bLang=1;
     }
+    setFontLanguage(bLang);
     FILE *f;
     std::string filename=ROMFS_LANG_DIR+"default.json";
     if (!fileExists(SDCARD_LANG_DIR+std::string(lang[bLang])+".json")) {
@@ -32,6 +34,9 @@ void Lang::loadStrings(u8 bLang) {
     if(f) {
         this->_jLang=nlohmann::json::parse(f,nullptr,false);
         fclose(f);
+    }else{
+        this->_ready=false;
+        return;
     }
     jsonLogger.debug(this->_jLang.dump());
     this->_ready=true;
