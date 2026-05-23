@@ -51,6 +51,13 @@ extern "C" {
         this->entries.push_back(s);
         return this;
     }
+    void Menu::refreshStrings() {
+        for (auto entry : this->entries) {
+            if (entry->action == Install_All) {
+                entry->display = gLang.getString("menu_installAll");
+            }
+        }
+    }
     void Menu::drawMenu() {
 			//draw
             std::string title =  shorten(this->currentDirectory.generic_string(),30);

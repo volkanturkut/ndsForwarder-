@@ -145,7 +145,10 @@ int main()
 		touchPosition touch;
 		hidTouchRead(&touch);
 		
-		if (kDown & KEY_TOUCH) config->interact(&touch);
+		if (kDown & KEY_TOUCH) {
+			config->interact(&touch);
+			menu->refreshStrings();
+		}
 			// Button Handling
 
 		if (kDown & KEY_START) break; // break in order to return to hbmenu
@@ -159,6 +162,7 @@ int main()
 				u8 langIdx = config->selectedLanguage;
 				if (langIdx == 12) CFGU_GetSystemLanguage(&langIdx);
 				gLang.loadStrings(langIdx);
+				menu->refreshStrings();
 			}
 			if (kDown & KEY_RIGHT) {
 				config->selectedLanguage++;
@@ -166,6 +170,7 @@ int main()
 				u8 langIdx = config->selectedLanguage;
 				if (langIdx == 12) CFGU_GetSystemLanguage(&langIdx);
 				gLang.loadStrings(langIdx);
+				menu->refreshStrings();
 			}
 		}else{
 

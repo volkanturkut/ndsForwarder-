@@ -41,6 +41,7 @@ class Menu {
 //        Menu* setSelections(std::vector<MenuSelection> s);
 //        std::vector<MenuSelection> getSelections();
         void drawMenu();
+        void refreshStrings();
         void init();
         void down();
         void pageDown();
