@@ -69,17 +69,17 @@ void Config::draw(bool interactive) {
     drawCheckbox(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+30,0,20,20,0.67,BGColor,BORDER_COLOR,FOREGROUND_COLOR,gLang.parseString("config_customTitle").c_str(),this->customTitle);
     drawCheckbox(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+60,0,20,20,0.67,BGColor,BORDER_COLOR,FOREGROUND_COLOR,gLang.parseString("config_forceInstall").c_str(),this->forceInstall);
 
-    drawText(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+110,0,0.67,BGColor,FOREGROUND_COLOR,gLang.getString("config_language").c_str(),0);
-    drawArrow(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+130,0,10,10,FOREGROUND_COLOR,false);
-    drawArrow(MENU_BORDER_HEIGHT+25,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+130,0,10,10,FOREGROUND_COLOR,true);
+    drawText(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+100,0,0.67,BGColor,FOREGROUND_COLOR,gLang.getString("config_language").c_str(),0);
+    drawArrow(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+120,0,10,10,FOREGROUND_COLOR,false);
+    drawArrow(MENU_BORDER_HEIGHT+25,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+120,0,10,10,FOREGROUND_COLOR,true);
     const char* langName = (this->selectedLanguage==12)?gLang.getString("config_system").c_str():langNames[this->selectedLanguage];
-    drawText(MENU_BORDER_HEIGHT+50,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+134,0,0.67,BORDER_COLOR,BORDER_FOREGROUND,langName,0);
+    drawText(MENU_BORDER_HEIGHT+50,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+124,0,0.67,BORDER_COLOR,BORDER_FOREGROUND,langName,0);
 
     if (this->templates.size() > 1) {
-        drawText(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+160,0,0.67,BGColor,FOREGROUND_COLOR,gLang.getString("config_template").c_str(),0);
-        drawArrow(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+180,0,10,10,FOREGROUND_COLOR,false);
-        drawArrow(MENU_BORDER_HEIGHT+25,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+180,0,10,10,FOREGROUND_COLOR,true);
-        drawText(MENU_BORDER_HEIGHT+50,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+184,0,0.67,BORDER_COLOR,BORDER_FOREGROUND,this->templates.at(this->currentTemplate).c_str(),0);
+        drawText(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+150,0,0.67,BGColor,FOREGROUND_COLOR,gLang.getString("config_template").c_str(),0);
+        drawArrow(MENU_BORDER_HEIGHT+10,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+170,0,10,10,FOREGROUND_COLOR,false);
+        drawArrow(MENU_BORDER_HEIGHT+25,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+170,0,10,10,FOREGROUND_COLOR,true);
+        drawText(MENU_BORDER_HEIGHT+50,MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+174,0,0.67,BORDER_COLOR,BORDER_FOREGROUND,this->templates.at(this->currentTemplate).c_str(),0);
     }
 }
 void Config::interact(touchPosition *touch) {
@@ -95,7 +95,7 @@ void Config::interact(touchPosition *touch) {
         }
     }
     // Language selection
-    if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+120 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+150) {
+    if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+110 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+140) {
         if (touch->px >= MENU_BORDER_HEIGHT+10 && touch->px <= MENU_BORDER_HEIGHT+20) {
             this->selectedLanguage--;
             if (this->selectedLanguage < 0) this->selectedLanguage = 12;
@@ -112,7 +112,7 @@ void Config::interact(touchPosition *touch) {
         }
     }
     // Template selection
-    if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+170 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+200) {
+    if (touch->py >= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+160 && touch->py <= MENU_BORDER_HEIGHT+MENU_HEADING_HEIGHT+190) {
         if (touch->px >= MENU_BORDER_HEIGHT+10 && touch->px <= MENU_BORDER_HEIGHT+20) {
                 if (this->currentTemplate > 0)
                     this->currentTemplate--;

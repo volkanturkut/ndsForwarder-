@@ -120,7 +120,7 @@ void drawCheckbox(float x, float y, float z, float width, float height, float sc
     if (checked)
         C2D_DrawRectSolid(x+3,y+3,z,width-6,height-6,borderColor);
     if (strlen(label) > 0)
-        drawText(x+width+3,y+(height/2),z,scale,bgColor,color,label,0);
+        drawText(x+width+3,y+(height/2),z,scale,0,color,label,0);
 }
 void drawArrow(float x, float y, float z, float height, float width, u32 color, bool flip) {
     if (flip) {
