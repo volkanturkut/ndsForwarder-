@@ -60,5 +60,19 @@
     "debug_crc":"foundCRC: 0x%x  Expected 0x%x",
     "debug_settings":"Settings: RandomTid: %d; Force Install: %d; Custom Title: %s",
 
-    "format_hex":"0x%x"
+    "format_hex":"0x%x",
+
+    "error_010101":"Invalid ROM header checksum value. Probably a corrupted rom.",
+    "error_010102":"Invalid original DS banner checksum (version 1). Probably a corrupted rom.",
+    "error_010103":"Invalid non-animated DSi banner checksum (version 2). Force Install can bypass this to fallback to the original NDS banner. May be caused by a ROM hack patch.",
+    "error_010104":"Invalid non-animated DSi banner checksum (version 3). Force Install can bypass this to fallback to the original NDS banner. May be caused by a ROM hack patch.",
+    "error_010105":"Invalid animated DSi banner checksum. Force Install can bypass this to fallback to the original NDS banner. May be caused by a ROM hack patch.",
+    "error_010200":"Invalid path to ROM or ROM is missing banner completely. Probably a corrupted ROM.",
+    "error_010300":"Invalid path to ROM or ROM is missing banner completely. Probably a corrupted ROM.",
+    "error_020100":"Invalid path to forwarder template.",
+    "error_020200":"Template .fwd file not found.",
+    "error_020300":"Template .nds file not found.",
+    "error_020400":"Invalid template format. Probably a corrupt template.",
+    "error_030101":"Not enough space on system NAND.",
+    "error_ffffffff":"Check the log in /3ds/forwarder/log.txt and verify that you are not receiving a CRC error. CRC errors indicate corrupted ROMs. If this is a ROM hack, you can use a custom DSi banner (.bin format) to allow install."
 }

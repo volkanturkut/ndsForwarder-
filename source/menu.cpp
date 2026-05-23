@@ -241,7 +241,7 @@ extern "C" {
                         if (buildResult->isSuccess()) {
                             Dialog(target,0,0,320,240,gLang.getString("menu_installComplete"),{gLang.getString("menu_ok")}).handle();
                         }else{
-                            Dialog(target,0,0,320,240,{gLang.getString("menu_installFailed"),gLang.getString("dialog_checkLog"),gLang.parseString("format_hex",(u32)buildResult->code)},{gLang.getString("menu_ok")}).handle();
+                            Dialog(target,0,0,320,240,{gLang.getString("menu_installFailed"),gLang.getErrorString(buildResult->code),gLang.parseString("format_hex",(u32)buildResult->code)},{gLang.getString("menu_ok")}).handle();
                         }
                         delete buildResult;
                     }
@@ -279,7 +279,7 @@ extern "C" {
                                 buildResult = builder->buildCIA(dEntry.path().generic_string());
                             }
                             if (!buildResult->isSuccess()) {
-                                Dialog(target,0,0,320,240,{gLang.getString("menu_installFailed"),shortname,std::to_string((u32)buildResult->code)},{gLang.getString("menu_ok")}).handle();
+                                Dialog(target,0,0,320,240,{gLang.getString("menu_installFailed"),shortname,gLang.getErrorString(buildResult->code),gLang.parseString("format_hex",(u32)buildResult->code)},{gLang.getString("menu_ok")}).handle();
                             }else{
                                 config->dsiwareCount++;
                             }
